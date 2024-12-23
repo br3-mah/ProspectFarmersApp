@@ -12,9 +12,8 @@ import androidx.navigation.NavHostController
 import androidx.compose.material3.MaterialTheme
 
 @Composable
-fun AddFarmerScreen(navController: NavHostController) {
-    var farmerName by remember { mutableStateOf("") }
-    var farmerLocation by remember { mutableStateOf("") }
+fun SearchFarmerScreen(navController: NavHostController) {
+    var searchQuery by remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier
@@ -23,19 +22,12 @@ fun AddFarmerScreen(navController: NavHostController) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(text = "Add Farmer", style = MaterialTheme.typography.headlineLarge)
+        Text(text = "Search Farmer", style = MaterialTheme.typography.headlineLarge)
         Spacer(modifier = Modifier.height(16.dp))
         OutlinedTextField(
-            value = farmerName,
-            onValueChange = { farmerName = it },
-            label = { Text("Farmer Name") },
-            modifier = Modifier.fillMaxWidth()
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        OutlinedTextField(
-            value = farmerLocation,
-            onValueChange = { farmerLocation = it },
-            label = { Text("Farmer Location") },
+            value = searchQuery,
+            onValueChange = { searchQuery = it },
+            label = { Text("Search Farmer") },
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(16.dp))
@@ -43,7 +35,7 @@ fun AddFarmerScreen(navController: NavHostController) {
             onClick = { navController.popBackStack() },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text(text = "Save Farmer")
+            Text(text = "Back to Home")
         }
     }
 }

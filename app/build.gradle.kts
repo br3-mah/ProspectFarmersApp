@@ -48,7 +48,6 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
-
     // 🛠️ Add Navigation Compose dependencies
     implementation("androidx.navigation:navigation-compose:2.8.5")
 
