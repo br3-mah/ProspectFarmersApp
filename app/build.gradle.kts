@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    kotlin("plugin.serialization") version "1.8.10"
 }
 
 android {
@@ -48,8 +49,6 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
-    // 🛠️ Add Navigation Compose dependencies
-    implementation("androidx.navigation:navigation-compose:2.8.5")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -58,4 +57,30 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    // 🛠️ Add Navigation Compose dependencies
+    implementation("androidx.navigation:navigation-compose:2.8.5")
+    implementation("androidx.compose.runtime:runtime-livedata:1.4.0") // or the appropriate version you're using
+
+    //Retrofit
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.10.0")
+
+    // Ktor Client Dependencies
+    implementation("io.ktor:ktor-client-core:2.0.0")
+    implementation("io.ktor:ktor-client-cio:2.0.0")
+    implementation("io.ktor:ktor-client-content-negotiation:2.0.0")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:2.0.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
+    implementation("androidx.compose.runtime:runtime:1.4.0")
+
+
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
+    // Compose UI and Material 3
+    implementation("androidx.compose.ui:ui")
+    implementation("androidx.compose.ui:ui-graphics")
+    implementation("androidx.compose.ui:ui-tooling-preview")
+    implementation("androidx.compose.material3:material3:1.1.1")
 }

@@ -1,89 +1,239 @@
 package com.example.prospectfarmersapp.ui.screens
 
 import android.util.Patterns
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.compose.material3.MaterialTheme
-import java.util.UUID
 
 @Composable
 fun AddFarmerScreen(navController: NavHostController) {
-    var farmerName by remember { mutableStateOf("") }
-    var farmerLocation by remember { mutableStateOf("") }
-    var phoneNumber by remember { mutableStateOf("") }
-    var temporalId = UUID.randomUUID().toString()  // Generate unique ID for the farmer
-    var phoneNumberError by remember { mutableStateOf("") }
+    var currentStep by remember { mutableStateOf(1) }
 
-    // Validate phone number
+    // Step 1 Fields
+    var farmerName by remember { mutableStateOf("") }
+    var phoneNumber by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
+    var phoneNumberError by remember { mutableStateOf("") }
+    var emailError by remember { mutableStateOf("") }
+
+    // Step 2 Fields
+    var farmerLocation by remember { mutableStateOf("") }
+    var farmName by remember { mutableStateOf("") }
+    var farmAddress by remember { mutableStateOf("") }
+
+    // Step 3 Fields
+    var farmSize by remember { mutableStateOf("") }
+    var typeOfFarming by remember { mutableStateOf("") }
+    var mobileMoneyNumber by remember { mutableStateOf("") }
+    var bankAccountNumber by remember { mutableStateOf("") }
+    var bankName by remember { mutableStateOf("") }
+
+    // Validate functions
     fun isValidPhoneNumber(phone: String): Boolean {
         return Patterns.PHONE.matcher(phone).matches()
+    }
+
+    fun isValidEmail(email: String): Boolean {
+        return Patterns.EMAIL_ADDRESS.matcher(email).matches()
     }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
+            .padding(2.dp)
+            .background(Color(0xFFE8F5E9)) // Light green background
+            .padding(2.dp), // Rounded corners
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(text = "Add Farmer", style = MaterialTheme.typography.headlineLarge)
+        Text(text = "Register New Farmer", style = MaterialTheme.typography.headlineLarge, color = Color(0xFF388E3C))
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Farmer Name Input
-        OutlinedTextField(
-            value = farmerName,
-            onValueChange = { farmerName = it },
-            label = { Text("Farmer Name") },
-            modifier = Modifier.fillMaxWidth()
-        )
-        Spacer(modifier = Modifier.height(8.dp))
+        // Step 1: Personal Information
+        AnimatedVisibility(visible = currentStep == 1) {
+            Column {
+                OutlinedTextField(
+                    value = farmerName,
+                    onValueChange = { farmerName = it },
+                    label = { Text("Farmer Name") },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(10.dp)
+                )
+                Spacer(modifier = Modifier.height(8.dp))
 
-        // Phone Number Input with validation
-        OutlinedTextField(
-            value = phoneNumber,
-            onValueChange = {
-                phoneNumber = it
-                phoneNumberError = if (isValidPhoneNumber(it)) "" else "Invalid phone number"
-            },
-            label = { Text("Phone Number") },
-            isError = phoneNumberError.isNotEmpty(),
-            modifier = Modifier.fillMaxWidth()
-        )
-        if (phoneNumberError.isNotEmpty()) {
-            Text(text = phoneNumberError, color = MaterialTheme.colorScheme.error)
-        }
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // Farmer Location Input
-        OutlinedTextField(
-            value = farmerLocation,
-            onValueChange = { farmerLocation = it },
-            label = { Text("Farmer Location") },
-            modifier = Modifier.fillMaxWidth()
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Save Farmer Button
-        Button(
-            onClick = {
-                if (farmerName.isNotEmpty() && farmerLocation.isNotEmpty() && isValidPhoneNumber(phoneNumber)) {
-                    // Save Farmer Logic
-                    // Example: Save the farmer's data to a database, API, or local storage
-                    navController.popBackStack()
-                } else {
-                    // Display error message if any field is invalid
+                OutlinedTextField(
+                    value = phoneNumber,
+                    onValueChange = {
+                        phoneNumber = it
+                        phoneNumberError = if (isValidPhoneNumber(it)) "" else "Invalid phone number"
+                    },
+                    label = { Text("Phone Number") },
+                    isError = phoneNumberError.isNotEmpty(),
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(10.dp)
+                )
+                if (phoneNumberError.isNotEmpty()) {
+                    Text(text = phoneNumberError, color = MaterialTheme.colorScheme.error)
                 }
-            },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(text = "Save Farmer")
+                Spacer(modifier = Modifier.height(8.dp))
+
+                OutlinedTextField(
+                    value = email,
+                    onValueChange = {
+                        email = it
+                        emailError = if (isValidEmail(it)) "" else "Invalid email address"
+                    },
+                    label = { Text("Email") },
+                    isError = emailError.isNotEmpty(),
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(10.dp)
+                )
+                if (emailError.isNotEmpty()) {
+                    Text(text = emailError, color = MaterialTheme.colorScheme.error)
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Button(
+                    onClick = {
+                        if (farmerName.isNotEmpty() && isValidPhoneNumber(phoneNumber) && isValidEmail(email)) {
+                            currentStep++
+                        } else {
+                            // Display error message if any field is invalid
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(text="Next")
+                }
+            }
+        }
+
+        // Step 2: Farm Information
+        AnimatedVisibility(visible = currentStep == 2) {
+            Column {
+                OutlinedTextField(
+                    value = farmerLocation,
+                    onValueChange = { farmerLocation = it },
+                    label = { Text("Farmer Location") },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape=RoundedCornerShape(10.dp)
+                )
+                Spacer(modifier=Modifier.height(8.dp))
+
+                OutlinedTextField(
+                    value=farmName,
+                    onValueChange={farmName=it},
+                    label={Text("Farm Name")},
+                    modifier=Modifier.fillMaxWidth(),
+                    shape=RoundedCornerShape(10.dp)
+                )
+                Spacer(modifier=Modifier.height(8.dp))
+
+                OutlinedTextField(
+                    value=farmAddress,
+                    onValueChange={farmAddress=it},
+                    label={Text("Farm Address")},
+                    modifier=Modifier.fillMaxWidth(),
+                    shape=RoundedCornerShape(10.dp)
+                )
+                Spacer(modifier=Modifier.height(16.dp))
+
+                Button(
+                    onClick={
+                        if (farmerLocation.isNotEmpty() && farmName.isNotEmpty() && farmAddress.isNotEmpty()) {
+                            currentStep++
+                        } else {
+                            // Display error message if any field is invalid
+                        }
+                    },
+                    modifier=Modifier.fillMaxWidth()
+                ) {
+                    Text(text="Next")
+                }
+            }
+        }
+
+        // Step 3: Financial Information
+        AnimatedVisibility(visible=currentStep==3) {
+            Column {
+                OutlinedTextField(
+                    value=farmSize,
+                    onValueChange={farmSize=it},
+                    label={Text("Farm Size")},
+                    modifier=Modifier.fillMaxWidth(),
+                    shape=RoundedCornerShape(10.dp)
+                )
+                Spacer(modifier=Modifier.height(8.dp))
+
+                OutlinedTextField(
+                    value=typeOfFarming,
+                    onValueChange={typeOfFarming=it},
+                    label={Text("Type of Farming")},
+                    modifier=Modifier.fillMaxWidth(),
+                    shape=RoundedCornerShape(10.dp)
+                )
+                Spacer(modifier=Modifier.height(8.dp))
+
+                OutlinedTextField(
+                    value=mobileMoneyNumber,
+                    onValueChange={mobileMoneyNumber=it},
+                    label={Text("Mobile Money Number")},
+                    modifier=Modifier.fillMaxWidth(),
+                    shape=RoundedCornerShape(10.dp)
+                )
+                Spacer(modifier=Modifier.height(8.dp))
+
+                OutlinedTextField(
+                    value=bankAccountNumber,
+                    onValueChange={bankAccountNumber=it},
+                    label={Text("Bank Account Number")},
+                    modifier=Modifier.fillMaxWidth(),
+                    shape=RoundedCornerShape(10.dp)
+                )
+                Spacer(modifier=Modifier.height(8.dp))
+
+                OutlinedTextField(
+                    value=bankName,
+                    onValueChange={bankName=it},
+                    label={Text("Bank Name")},
+                    modifier=Modifier.fillMaxWidth(),
+                    shape=RoundedCornerShape(10.dp)
+                )
+                Spacer(modifier=Modifier.height(16.dp))
+
+                Button(
+                    onClick={
+                        if (farmSize.isNotEmpty() && typeOfFarming.isNotEmpty() &&
+                            mobileMoneyNumber.isNotEmpty() && bankAccountNumber.isNotEmpty() && bankName.isNotEmpty()) {
+                            // Save Farmer Logic here...
+                            navController.popBackStack()
+                        } else {
+                            // Display error message if any field is invalid
+                        }
+                    },
+                    modifier=Modifier.fillMaxWidth()
+                ) {
+                    Text(text="Save Farmer")
+                }
+            }
+        }
+
+        // Navigation Buttons for Backward Navigation (if needed)
+        if (currentStep > 1) {
+            Button(onClick = { currentStep-- }, modifier = Modifier.padding(top = 16.dp)) {
+                Text(text="Back")
+            }
         }
     }
 }

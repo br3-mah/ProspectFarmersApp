@@ -8,16 +8,21 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.compose.currentBackStackEntryAsState // Correct the import here
+import androidx.navigation.compose.currentBackStackEntryAsState
+import com.example.prospectfarmersapp.api.RetrofitInstance
 import com.example.prospectfarmersapp.ui.screens.*
 import com.example.prospectfarmersapp.ui.components.BottomNavBar
 import com.example.prospectfarmersapp.ui.components.TopNavBar
 import com.example.prospectfarmersapp.ui.theme.ProspectFarmersAppTheme
+import kotlinx.coroutines.launch
+import retrofit2.HttpException
 
 class MainActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -51,6 +56,54 @@ class MainActivity : ComponentActivity() {
                         composable("search_farmer_screen") { SearchFarmerScreen(navController) }
                     }
                 }
+            }
+        }
+
+        // Initialize Retrofit API calls after the activity is created
+        fetchFarmerStats()
+        fetchRecentFarmers()
+    }
+
+    private fun fetchFarmerStats() {
+        lifecycleScope.launch {
+            try {
+                val response = RetrofitInstance.apiService.getFarmStats()
+                if (response.isSuccessful) {
+                    val farmStats = response.body()
+                    // Handle the successful response, e.g., update UI
+                    println("Farm Stats: $farmStats")
+                } else {
+                    // Handle failure, e.g., show error message
+                    println("Error fetching farm stats: ${response.errorBody()}")
+                }
+            } catch (e: HttpException) {
+                // Handle HTTP exceptions
+                println("HTTP Error: ${e.message}")
+            } catch (e: Throwable) {
+                // Handle other errors (e.g., no internet connection)
+                println("Error: ${e.message}")
+            }
+        }
+    }
+
+    private fun fetchRecentFarmers() {
+        lifecycleScope.launch {
+            try {
+                val response = RetrofitInstance.apiService.getRecentFarmers()
+                if (response.isSuccessful) {
+                    val recentFarmers = response.body()?.farmers
+                    // Handle the successful response, e.g., update UI
+                    println("Recent Farmers: $recentFarmers")
+                } else {
+                    // Handle failure, e.g., show error message
+                    println("Error fetching recent farmers: ${response.errorBody()}")
+                }
+            } catch (e: HttpException) {
+                // Handle HTTP exceptions
+                println("HTTP Error: ${e.message}")
+            } catch (e: Throwable) {
+                // Handle other errors (e.g., no internet connection)
+                println("Error: ${e.message}")
             }
         }
     }
