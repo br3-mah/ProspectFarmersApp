@@ -75,12 +75,13 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
     implementation("androidx.compose.runtime:runtime:1.4.0")
-
-
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
     // Compose UI and Material 3
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3:1.1.1")
+
+
+    implementation("com.google.accompanist:accompanist-swiperefresh:0.27.0")
 }

@@ -17,6 +17,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.prospectfarmersapp.components.StatCard
 import com.example.prospectfarmersapp.components.FarmerCard
 import com.example.prospectfarmersapp.models.FarmersViewModel
+import android.util.Log
+import androidx.compose.foundation.lazy.rememberLazyListState
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -24,15 +29,39 @@ fun HomeScreen(navController: NavHostController, viewModel: FarmersViewModel = v
     val farmerStats = viewModel.farmerStats.collectAsState().value
     val recentFarmers = viewModel.recentFarmers.collectAsState().value
     var searchQuery by remember { mutableStateOf("") }
+    val scope = rememberCoroutineScope()
+
+    // Add states for refresh handling
+    var isRefreshing by remember { mutableStateOf(false) }
+    val swipeRefreshState = rememberSwipeRefreshState(isRefreshing)
+    val listState = rememberLazyListState()
 
     // Custom colors
     val customGreen = Color(0xFF1B5E20)
     val lightGreen = Color(0xFFE8F5E9)
 
-    //am still get 0 results even when api has resutls
     val totalFarmers = farmerStats?.totalFarmers?.toString()
     val totalProspects = farmerStats?.totalProspects?.toString() ?: "0"
     val totalUsers = farmerStats?.totalUsers?.toString() ?: "0"
+
+    Log.d("UI_STATS", "Stats received in UI: $farmerStats")
+
+    // Refresh function
+    val refreshData = {
+        scope.launch {
+            isRefreshing = true
+            try {
+                viewModel.refreshData() // Add this method to your ViewModel
+            } finally {
+                isRefreshing = false
+            }
+        }
+    }
+
+    // Effect to refresh on screen landing
+    LaunchedEffect(Unit) {
+        refreshData()
+    }
 
     Scaffold(
         topBar = {
@@ -54,6 +83,14 @@ fun HomeScreen(navController: NavHostController, viewModel: FarmersViewModel = v
                     }
                 },
                 actions = {
+                    // Add refresh button
+                    IconButton(onClick = { refreshData() }) {
+                        Icon(
+                            Icons.Filled.Refresh,
+                            contentDescription = "Refresh",
+                            tint = customGreen
+                        )
+                    }
                     IconButton(onClick = { /* Implement settings */ }) {
                         Icon(
                             Icons.Filled.Settings,
@@ -79,97 +116,104 @@ fun HomeScreen(navController: NavHostController, viewModel: FarmersViewModel = v
             }
         }
     ) { padding ->
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+        SwipeRefresh(
+            state = swipeRefreshState,
+            onRefresh = { refreshData() },
+            modifier = Modifier.fillMaxSize()
         ) {
-            item {
-                SearchBar(
-                    query = searchQuery,
-                    onQueryChange = { searchQuery = it },
-                    onSearch = { },
-                    active = false,
-                    onActiveChange = { },
-                    placeholder = { Text("Search farmers...") },
-                    leadingIcon = { Icon(Icons.Default.Search, "Search") },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp)
-                ) {
-                    // Search suggestions can go here
+            LazyColumn(
+                state = listState,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+                    .padding(horizontal = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                item {
+                    SearchBar(
+                        query = searchQuery,
+                        onQueryChange = { searchQuery = it },
+                        onSearch = { },
+                        active = false,
+                        onActiveChange = { },
+                        placeholder = { Text("Search farmers...") },
+                        leadingIcon = { Icon(Icons.Default.Search, "Search") },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp)
+                    ) {
+                        // Search suggestions can go here
+                    }
                 }
-            }
 
-            item {
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = lightGreen
-                    )
-                ) {
+                item {
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = lightGreen
+                        )
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            StatCard(
+                                title = "Total Users",
+                                value = totalUsers.toString(),
+                                modifier = Modifier.weight(1f)
+                            )
+                            StatCard(
+                                title = "Active Farms",
+                                value = totalFarmers.toString(),
+                                modifier = Modifier.weight(1f)
+                            )
+                            StatCard(
+                                title = "Prospects",
+                                value = totalProspects.toString(),
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
+                    }
+                }
+
+                item {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(16.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            .padding(vertical = 8.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        StatCard(
-                            title = "Total Users",
-                            value = totalUsers.toString(),
-                            modifier = Modifier.weight(1f)
+                        Text(
+                            "Recently Added Farmers",
+                            style = MaterialTheme.typography.titleMedium.copy(
+                                fontWeight = FontWeight.Bold,
+                                color = customGreen
+                            )
                         )
-                        StatCard(
-                            title = "Active Farms",
-                            value = totalFarmers.toString(),
-                            modifier = Modifier.weight(1f)
-                        )
-                        StatCard(
-                            title = "Prospects",
-                            value = totalProspects.toString(),
-                            modifier = Modifier.weight(1f)
-                        )
+                        TextButton(
+                            onClick = { /* View all farmers */ },
+                            colors = ButtonDefaults.textButtonColors(
+                                contentColor = customGreen
+                            )
+                        ) {
+                            Text("View All")
+                        }
                     }
                 }
-            }
 
-            item {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        "Recently Added Farmers",
-                        style = MaterialTheme.typography.titleMedium.copy(
-                            fontWeight = FontWeight.Bold,
-                            color = customGreen
-                        )
+                items(recentFarmers) { farmer ->
+                    FarmerCard(
+                        farmer = farmer,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp)
                     )
-                    TextButton(
-                        onClick = { /* View all farmers */ },
-                        colors = ButtonDefaults.textButtonColors(
-                            contentColor = customGreen
-                        )
-                    ) {
-                        Text("View All")
-                    }
                 }
-            }
-
-            items(recentFarmers) { farmer ->
-                FarmerCard(
-                    farmer = farmer,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 4.dp)
-                )
             }
         }
     }

@@ -23,6 +23,13 @@ class FarmersViewModel : ViewModel() {
         fetchRecentFarmers()
     }
 
+    fun refreshData() {
+        viewModelScope.launch {
+            fetchFarmerStats()  // Refresh farmer stats
+            fetchRecentFarmers()  // Refresh recent farmers
+        }
+    }
+
     private fun fetchFarmerStats() {
         viewModelScope.launch {
             try {
@@ -35,7 +42,8 @@ class FarmersViewModel : ViewModel() {
                             totalFarmers = it.totalFarmers,
                             totalProspects = it.totalProspects
                         )
-                        Log.d("API_SUCCESS", "Parsed Stats: $_farmerStats")
+                        Log.d("API_SUCCESS", "Parsed Stats: ${it.totalUsers}, ${it.totalFarmers}, ${it.totalProspects}")
+
                     }
                 } else {
                     Log.e("API_ERROR", "Failed with Code: ${response.code()}, Message: ${response.message()}")
@@ -57,20 +65,21 @@ class FarmersViewModel : ViewModel() {
             try {
                 val response = apiService.getRecentFarmers()
                 if (response.isSuccessful) {
-                    // Correctly map the response to the _recentFarmers
-                    _recentFarmers.value = response.body()?.farmers ?: emptyList()
+                    val farmers = response.body()?.farmers.orEmpty().filter { true }
+                    _recentFarmers.value = farmers
+                    Log.d("API_SUCCESS", "Fetched Farmers: ${farmers.size}")
+                    Log.d("API_SUCCESS", "Fetched Farmers: ${farmers}")
                 } else {
-                    // Handle failure (e.g., show error message)
-                    _recentFarmers.value = emptyList()
+                    Log.e("API_ERROR", "Failed to fetch recent farmers with Code: ${response.code()}")
                 }
             } catch (e: HttpException) {
-                // Handle HTTP exceptions
-                _recentFarmers.value = emptyList()
+                Log.e("API_EXCEPTION", "HttpException: ${e.message}")
             } catch (e: Throwable) {
-                // Handle other errors (e.g., no internet connection)
-                _recentFarmers.value = emptyList()
+                Log.e("API_EXCEPTION", "Throwable: ${e.localizedMessage}")
             }
         }
     }
+
+
 
 }

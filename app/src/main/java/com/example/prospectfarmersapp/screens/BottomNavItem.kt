@@ -12,14 +12,21 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.List
 
 sealed class BottomNavItem(val route: String, val icon: @Composable () -> Unit, val label: String) {
     object Home : BottomNavItem("home_screen", { Icon(Icons.Filled.Home, contentDescription = "Home") }, "Home")
     object AddFarmer : BottomNavItem("add_farmer_screen", { Icon(Icons.Filled.Add, contentDescription = "Add") }, "Add")
     object Search : BottomNavItem("search_farmer_screen", { Icon(Icons.Filled.Search, contentDescription = "Search") }, "Search")
+    object RecentFarmers : BottomNavItem("farmers_list_screen", { Icon(Icons.Filled.List, contentDescription = "Recent Farmers") }, "Recent")
 }
 
-val bottomNavItems = listOf(BottomNavItem.Home, BottomNavItem.AddFarmer, BottomNavItem.Search)
+val bottomNavItems = listOf(
+    BottomNavItem.Home,
+    BottomNavItem.AddFarmer,
+    BottomNavItem.Search,
+    BottomNavItem.RecentFarmers
+)
 
 @Composable
 fun BottomNavBar(navController: NavHostController) {

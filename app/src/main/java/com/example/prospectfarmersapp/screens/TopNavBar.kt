@@ -1,20 +1,29 @@
 package com.example.prospectfarmersapp.ui.components
 
+import android.graphics.drawable.Drawable
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.rounded.Menu
+import androidx.compose.material.icons.rounded.Notifications
+import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.prospectfarmersapp.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -24,50 +33,90 @@ fun TopNavBar(
     onSearchClick: () -> Unit = {},
     onNotificationClick: () -> Unit = {}
 ) {
-    Surface(
+    val greenGradient = Brush.horizontalGradient(
+        colors = listOf(
+            Color(0xFF1B5E20),  // Darker green
+            Color(0xFF2E7D32),  // Dark green
+            Color(0xFF43A047)   // Medium green
+        )
+    )
+
+    Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(64.dp),
-        shadowElevation = 4.dp,
-        color = MaterialTheme.colorScheme.primary
+            .height(75.dp)
+            .shadow(
+                elevation = 12.dp,
+                shape = RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp)
+            )
+            .clip(RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp))
+            .background(brush = greenGradient)
     ) {
         TopAppBar(
             title = {
-                Text(
-                    text = title,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onPrimary
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    modifier = Modifier.padding(start = 8.dp)
+                ) {
+                    Text(
+                        text = title,
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                }
             },
             navigationIcon = {
-                IconButton(onClick = onMenuClick) {
+                IconButton(
+                    onClick = onMenuClick,
+                    modifier = Modifier.padding(start = 8.dp)
+                ) {
                     Icon(
-                        imageVector = Icons.Default.Menu,
+                        imageVector = Icons.Rounded.Menu,
                         contentDescription = "Menu",
-                        tint = MaterialTheme.colorScheme.onPrimary
+                        tint = Color.White,
+                        modifier = Modifier.size(32.dp)
                     )
                 }
             },
             actions = {
-                IconButton(onClick = onSearchClick) {
-                    Icon(
-                        imageVector = Icons.Default.Search,
-                        contentDescription = "Search",
-                        tint = MaterialTheme.colorScheme.onPrimary
-                    )
-                }
-                IconButton(onClick = onNotificationClick) {
-                    Icon(
-                        imageVector = Icons.Default.Notifications,
-                        contentDescription = "Notifications",
-                        tint = MaterialTheme.colorScheme.onPrimary
-                    )
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    modifier = Modifier.padding(end = 8.dp)
+                ) {
+                    IconButton(
+                        onClick = onSearchClick,
+                        modifier = Modifier
+                            .size(48.dp)
+                            .padding(6.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.Search,
+                            contentDescription = "Search",
+                            tint = Color.White,
+                            modifier = Modifier.size(30.dp)
+                        )
+                    }
+                    IconButton(
+                        onClick = onNotificationClick,
+                        modifier = Modifier
+                            .size(48.dp)
+                            .padding(6.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.Notifications,
+                            contentDescription = "Notifications",
+                            tint = Color.White,
+                            modifier = Modifier.size(30.dp)
+                        )
+                    }
                 }
             },
             colors = TopAppBarDefaults.topAppBarColors(
-                containerColor = MaterialTheme.colorScheme.primary
-            )
+                containerColor = Color.Transparent
+            ),
+            modifier = Modifier.fillMaxWidth()
         )
     }
 }

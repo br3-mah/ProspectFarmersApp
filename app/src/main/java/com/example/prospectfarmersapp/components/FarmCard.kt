@@ -11,8 +11,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.prospectfarmersapp.models.FarmersResponse // Correct import
 
+
 @Composable
 fun FarmerCard(farmer: FarmersResponse, modifier: Modifier = Modifier) {
+
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -24,7 +26,7 @@ fun FarmerCard(farmer: FarmersResponse, modifier: Modifier = Modifier) {
                 .padding(16.dp)
         ) {
             Text(
-                text = "${farmer.farmName} (${farmer.fName})",
+                text = "${farmer.lName ?: "Unknown"} ${farmer.fName ?: "Unknown"}",
                 style = MaterialTheme.typography.titleMedium,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis

@@ -6,6 +6,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -15,17 +17,31 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.viewModel // Add this import
+import com.example.prospectfarmersapp.models.AddFarmerRequest
+import kotlinx.coroutines.launch
+import retrofit2.HttpException
+import java.io.IOException
+
 
 @Composable
 fun AddFarmerScreen(navController: NavHostController) {
+    val viewModel: AddFarmerViewModel = viewModel()
+
     var currentStep by remember { mutableStateOf(1) }
+    var isLoading by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf("") }
+    val context = LocalContext.current
 
     // Step 1 Fields
-    var farmerName by remember { mutableStateOf("") }
+    var fName by remember { mutableStateOf("") } // First name
+    var lName by remember { mutableStateOf("") } // Last name
     var phoneNumber by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var phoneNumberError by remember { mutableStateOf("") }
     var emailError by remember { mutableStateOf("") }
+    var isProspect by remember { mutableStateOf(false) } // New checkbox field
 
     // Step 2 Fields
     var farmerLocation by remember { mutableStateOf("") }
@@ -52,8 +68,8 @@ fun AddFarmerScreen(navController: NavHostController) {
         modifier = Modifier
             .fillMaxSize()
             .padding(2.dp)
-            .background(Color(0xFFE8F5E9)) // Light green background
-            .padding(2.dp), // Rounded corners
+            .background(Color(0xFFE8F5E9))
+            .padding(2.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -64,9 +80,18 @@ fun AddFarmerScreen(navController: NavHostController) {
         AnimatedVisibility(visible = currentStep == 1) {
             Column {
                 OutlinedTextField(
-                    value = farmerName,
-                    onValueChange = { farmerName = it },
-                    label = { Text("Farmer Name") },
+                    value = fName,
+                    onValueChange = { fName = it },
+                    label = { Text("Farmer First Name") },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(10.dp)
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+
+                OutlinedTextField(
+                    value = lName,
+                    onValueChange = { lName = it },
+                    label = { Text("Farmer Last Name") },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(10.dp)
                 )
@@ -102,11 +127,22 @@ fun AddFarmerScreen(navController: NavHostController) {
                 if (emailError.isNotEmpty()) {
                     Text(text = emailError, color = MaterialTheme.colorScheme.error)
                 }
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Checkbox for isProspect
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Checkbox(
+                        checked = isProspect,
+                        onCheckedChange = { isProspect = it }
+                    )
+                    Text(text = "Is Prospect", style = MaterialTheme.typography.bodyMedium)
+                }
+
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Button(
                     onClick = {
-                        if (farmerName.isNotEmpty() && isValidPhoneNumber(phoneNumber) && isValidEmail(email)) {
+                        if (fName.isNotEmpty() && lName.isNotEmpty() && isValidPhoneNumber(phoneNumber) && isValidEmail(email)) {
                             currentStep++
                         } else {
                             // Display error message if any field is invalid
@@ -125,7 +161,7 @@ fun AddFarmerScreen(navController: NavHostController) {
                 OutlinedTextField(
                     value = farmerLocation,
                     onValueChange = { farmerLocation = it },
-                    label = { Text("Farmer Location") },
+                    label = { Text("Farmer Address") },
                     modifier = Modifier.fillMaxWidth(),
                     shape=RoundedCornerShape(10.dp)
                 )
@@ -213,27 +249,50 @@ fun AddFarmerScreen(navController: NavHostController) {
                 Spacer(modifier=Modifier.height(16.dp))
 
                 Button(
-                    onClick={
+                    onClick = {
                         if (farmSize.isNotEmpty() && typeOfFarming.isNotEmpty() &&
-                            mobileMoneyNumber.isNotEmpty() && bankAccountNumber.isNotEmpty() && bankName.isNotEmpty()) {
-                            // Save Farmer Logic here...
-                            navController.popBackStack()
+                            mobileMoneyNumber.isNotEmpty() && bankAccountNumber.isNotEmpty() && bankName.isNotEmpty()
+                        ) {
+                            isLoading = true
+                            errorMessage = ""
+
+                            // Create farmer data object with updated fields
+                            val farmerRequest = AddFarmerRequest(
+                                fName = fName,
+                                lName = lName,
+                                phoneNumber = phoneNumber,
+                                email = email,
+                                farmerLocation = farmerLocation,
+                                farmName = farmName,
+                                farmAddress = farmAddress,
+                                farmSize = farmSize,
+                                typeOfFarming = typeOfFarming,
+                                mobileMoneyNumber = mobileMoneyNumber,
+                                bankAccountNumber = bankAccountNumber,
+                                bankName = bankName,
+                                isProspect = isProspect
+                            )
+                            viewModel.submitFarmer(context, farmerRequest) {
+                                navController.popBackStack() // Navigate back on success
+                            }
                         } else {
-                            // Display error message if any field is invalid
+                            errorMessage = "Please fill all fields correctly."
                         }
                     },
                     modifier=Modifier.fillMaxWidth()
                 ) {
-                    Text(text="Save Farmer")
+                    if (isLoading) {
+                        CircularProgressIndicator(color = MaterialTheme.colorScheme.onPrimary)
+                    } else {
+                        Text(text = "Submit")
+                    }
                 }
-            }
-        }
 
-        // Navigation Buttons for Backward Navigation (if needed)
-        if (currentStep > 1) {
-            Button(onClick = { currentStep-- }, modifier = Modifier.padding(top = 16.dp)) {
-                Text(text="Back")
+                if (errorMessage.isNotEmpty()) {
+                    Text(text = errorMessage, color = MaterialTheme.colorScheme.error)
+                }
             }
         }
     }
 }
+

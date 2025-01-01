@@ -44,10 +44,3 @@ fun StatCard(
         }
     }
 }
-
-// Preview for the StatCard
-//@Preview(showBackground = true)
-@Composable
-fun PreviewStatCard() {
-    StatCard(title = "Total Farmers", value = "1234")
-}

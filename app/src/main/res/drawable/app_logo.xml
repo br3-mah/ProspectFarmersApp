@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Pressed state -->
+    <item android:state_pressed="true">
+        <shape>
+            <solid android:color="#1B5E20"/> <!-- Dark green when pressed -->
+            <corners android:radius="8dp"/>
+            <padding android:left="12dp" android:right="12dp" android:top="8dp" android:bottom="8dp"/>
+        </shape>
+    </item>
+
+    <!-- Focused state -->
+    <item android:state_focused="true">
+        <shape>
+            <solid android:color="#2E7D32"/> <!-- Medium green when focused -->
+            <corners android:radius="8dp"/>
+            <padding android:left="12dp" android:right="12dp" android:top="8dp" android:bottom="8dp"/>
+        </shape>
+    </item>
+
+    <!-- Disabled state -->
+    <item android:state_enabled="false">
+        <shape>
+            <solid android:color="#CCCCCC"/> <!-- Gray when disabled -->
+            <corners android:radius="8dp"/>
+            <padding android:left="12dp" android:right="12dp" android:top="8dp" android:bottom="8dp"/>
+        </shape>
+    </item>
+
+    <!-- Default/Normal state -->
+    <item>
+        <shape>
+            <solid android:color="#43A047"/> <!-- Light green in normal state -->
+            <corners android:radius="8dp"/>
+            <padding android:left="12dp" android:right="12dp" android:top="8dp" android:bottom="8dp"/>
+        </shape>
+    </item>
+</selector>

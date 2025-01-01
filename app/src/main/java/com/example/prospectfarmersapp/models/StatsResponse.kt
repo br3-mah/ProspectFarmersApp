@@ -1,7 +1,9 @@
 package com.example.prospectfarmersapp.models
 
+import com.google.gson.annotations.SerializedName
+
 data class StatsResponse(
-    val totalProspects: Int,
-    val totalFarmers: Int,
-    val totalUsers: Int
+    @SerializedName("total_users") val totalUsers: Int,
+    @SerializedName("total_farmers") val totalFarmers: Int,
+    @SerializedName("total_prospects") val totalProspects: Int
 )
